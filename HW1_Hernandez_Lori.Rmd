@@ -1,0 +1,105 @@
+---
+title: "STAA 566 HW#1"
+author: "Lori Hernandez"
+output: html_document
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+---
+
+**Introduction**
+
+I am interested in hopefully one day working in the world of clean energy, possibly for the Department of Energy's Clean Energy Corps; when given the opportunity to choose data to work with for this project, I wanted to select something clean-energy related.  I found data sets on Kaggle that provide wind energy generation amounts for four different energy companies in Germany, and I thought this would be interesting data to use for this project.  The data I used can be found at this link:  https://www.kaggle.com/jorgesandoval/wind-power-generation
+
+First, I will install the packages I will need to use for this project.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("ggplot2", repos="http://cran.us.r-project.org")
+install.packages("dplyr", repos="http://cran.us.r-project.org")
+library(dplyr)
+library(ggplot2)
+
+```
+
+Now I will load the 4 data sets I will use; there is a separate csv file for each of the 4 German energy companies.  I will also do a couple of clean-up steps.
+
+```{r}
+fifty_Hertz <- read.csv("C:/Users/lhern/OneDrive/Desktop/STAA 566/50Hertz.csv")
+Amprion <- read.csv("C:/Users/lhern/OneDrive/Desktop/STAA 566/Amprion.csv")
+TenneTTSO <- read.csv("C:/Users/lhern/OneDrive/Desktop/STAA 566/TenneTTSO.csv")
+TransnetBW <- read.csv("C:/Users/lhern/OneDrive/Desktop/STAA 566/TransnetBW.csv")
+
+#add name of energy company as a new column to each data set, so when I append them together I can tell which rows belong to which company
+fifty_Hertz$Company <- "50Hertz"
+Amprion$Company <- "Amprion"
+TenneTTSO$Company <- "TenneTTSO"
+TransnetBW$Company <- "TransnetBW"
+
+#the date field loads into r with an additional symbol in the column name for the date parameter which will make code harder to read, so I will rename this column in each of the 4 data sets
+names(fifty_Hertz)[names(fifty_Hertz) == "ï..Date"] <- "Date"
+names(Amprion)[names(Amprion) == "ï..Date"] <- "Date"
+names(TenneTTSO)[names(TenneTTSO) == "ï..Date"] <- "Date"
+names(TransnetBW)[names(TransnetBW) == "ï..Date"] <- "Date"
+
+#the date field loads into r as a character string, but I want it to be a Date class; here I convert the Date column into Date data type for all 4 data sets
+fifty_Hertz <- fifty_Hertz %>%
+  mutate(Date = as.Date(Date, "%d/%m/%Y"))
+Amprion <- Amprion %>%
+  mutate(Date = as.Date(Date, "%d/%m/%Y"))
+TenneTTSO <- TenneTTSO %>%
+  mutate(Date = as.Date(Date, "%d/%m/%Y"))
+TransnetBW <- TransnetBW %>%
+  mutate(Date = as.Date(Date, "%d/%m/%Y"))
+
+```
+
+The raw data provides an energy generation value for every 15 minute increment throughout each day; I want a total energy generation value for each full day, so I will sum these 96 values together to get a daily power generation value.  Then, I will reduce each of my data sets down to the name and date columns only, and combine those 2 columns with my newly created daily sum column, to have a 3 column data frame that provides only the company name, the date, and the sum of power generation for that date.  I will do this for all 4 companies.
+
+```{r}
+
+a <- fifty_Hertz %>%
+  select(starts_with("X"))
+fifty_hertz_daily_sum <- mutate(a, daily_sum=rowSums(a)) %>%
+  select("daily_sum")
+fifty_Hertz <- select(fifty_Hertz, Company, Date)
+fifty_Hertz <- cbind(fifty_Hertz, fifty_hertz_daily_sum)
+
+b <- Amprion %>%
+  select(starts_with("X"))
+amprion_daily_sum <- mutate(b, daily_sum=rowSums(b)) %>%
+  select("daily_sum")
+Amprion <- select(Amprion, Company, Date)
+Amprion <- cbind(Amprion, amprion_daily_sum)
+
+c <- TenneTTSO %>%
+  select(starts_with("X"))
+TenneTTSO_daily_sum <- mutate(c, daily_sum=rowSums(c)) %>%
+  select("daily_sum")
+TenneTTSO <- select(TenneTTSO, Company, Date)
+TenneTTSO <- cbind(TenneTTSO, TenneTTSO_daily_sum)
+
+d <- TransnetBW %>%
+  select(starts_with("X"))
+TransnetBW_daily_sum <- mutate(d, daily_sum=rowSums(d)) %>%
+  select("daily_sum")
+TransnetBW <- select(TransnetBW, Company, Date)
+TransnetBW <- cbind(TransnetBW, TransnetBW_daily_sum)
+```
+
+Now that I have cleaned up and prepared all 4 datasets, it is time to combine them into one data frame that I will use to produce my visualization.
+```{r}
+wind <- rbind(fifty_Hertz, Amprion, TenneTTSO, TransnetBW)
+```
+
+And finally, I will create my data visualization, which will show the daily wind power generated for each of the 4 German energy companies over time.
+```{r fig.height = 10, fig.width = 10}
+my_visualization <- ggplot(wind, aes(Date, daily_sum, color=Company))+
+  geom_point()+
+  labs(x="Date", y="Total Wind Power Generated in THw")+
+  ggtitle("Daily Wind Power Generation from Four German Energy Companies")
+my_visualization
+```
+
