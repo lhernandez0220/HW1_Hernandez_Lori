@@ -173,6 +173,19 @@ pre code {
 <p><strong>Introduction</strong></p>
 <p>I am interested in hopefully one day working in the world of clean energy, possibly for the Department of Energy’s Clean Energy Corps; when given the opportunity to choose data to work with for this project, I wanted to select something clean-energy related. I found data sets on Kaggle that provide wind energy generation amounts for four different energy companies in Germany, and I thought this would be interesting data to use for this project. The data I used can be found at this link: <a href="https://www.kaggle.com/jorgesandoval/wind-power-generation" class="uri">https://www.kaggle.com/jorgesandoval/wind-power-generation</a></p>
 <p>First, I will install the packages I will need to use for this project.</p>
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+install.packages(&quot;ggplot2&quot;, repos=&quot;http://cran.us.r-project.org&quot;)</code></pre>
+<pre><code>## package &#39;ggplot2&#39; successfully unpacked and MD5 sums checked
+## 
+## The downloaded binary packages are in
+##  C:\Users\lhern\AppData\Local\Temp\RtmpMLDPfX\downloaded_packages</code></pre>
+<pre class="r"><code>install.packages(&quot;dplyr&quot;, repos=&quot;http://cran.us.r-project.org&quot;)</code></pre>
+<pre><code>## package &#39;dplyr&#39; successfully unpacked and MD5 sums checked
+## 
+## The downloaded binary packages are in
+##  C:\Users\lhern\AppData\Local\Temp\RtmpMLDPfX\downloaded_packages</code></pre>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)</code></pre>
 <p>Now I will load the 4 data sets I will use; there is a separate csv file for each of the 4 German energy companies. I will also do a couple of clean-up steps.</p>
 <pre class="r"><code>fifty_Hertz &lt;- read.csv(&quot;C:/Users/lhern/OneDrive/Desktop/STAA 566/50Hertz.csv&quot;)
 Amprion &lt;- read.csv(&quot;C:/Users/lhern/OneDrive/Desktop/STAA 566/Amprion.csv&quot;)
