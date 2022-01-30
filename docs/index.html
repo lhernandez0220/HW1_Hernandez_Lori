@@ -178,15 +178,15 @@ install.packages(&quot;ggplot2&quot;, repos=&quot;http://cran.us.r-project.org&q
 <pre><code>## package &#39;ggplot2&#39; successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-##  C:\Users\lhern\AppData\Local\Temp\RtmpMLDPfX\downloaded_packages</code></pre>
+##  C:\Users\lhern\AppData\Local\Temp\RtmpOMU6zC\downloaded_packages</code></pre>
 <pre class="r"><code>install.packages(&quot;dplyr&quot;, repos=&quot;http://cran.us.r-project.org&quot;)</code></pre>
 <pre><code>## package &#39;dplyr&#39; successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-##  C:\Users\lhern\AppData\Local\Temp\RtmpMLDPfX\downloaded_packages</code></pre>
+##  C:\Users\lhern\AppData\Local\Temp\RtmpOMU6zC\downloaded_packages</code></pre>
 <pre class="r"><code>library(dplyr)
 library(ggplot2)</code></pre>
-<p>Now I will load the 4 data sets I will use; there is a separate csv file for each of the 4 German energy companies. I will also do a couple of clean-up steps.</p>
+<p>Now I will load the 4 data sets I will use; there is a separate csv file for each of the 4 German energy companies. I will also add the name of the company to each data set, so that when I combine them I still can separate the data out by company.</p>
 <pre class="r"><code>fifty_Hertz &lt;- read.csv(&quot;C:/Users/lhern/OneDrive/Desktop/STAA 566/50Hertz.csv&quot;)
 Amprion &lt;- read.csv(&quot;C:/Users/lhern/OneDrive/Desktop/STAA 566/Amprion.csv&quot;)
 TenneTTSO &lt;- read.csv(&quot;C:/Users/lhern/OneDrive/Desktop/STAA 566/TenneTTSO.csv&quot;)
@@ -196,54 +196,24 @@ TransnetBW &lt;- read.csv(&quot;C:/Users/lhern/OneDrive/Desktop/STAA 566/Transne
 fifty_Hertz$Company &lt;- &quot;50Hertz&quot;
 Amprion$Company &lt;- &quot;Amprion&quot;
 TenneTTSO$Company &lt;- &quot;TenneTTSO&quot;
-TransnetBW$Company &lt;- &quot;TransnetBW&quot;
-
-#the date field loads into r with an additional symbol in the column name for the date parameter which will make code harder to read, so I will rename this column in each of the 4 data sets
-names(fifty_Hertz)[names(fifty_Hertz) == &quot;ï..Date&quot;] &lt;- &quot;Date&quot;
-names(Amprion)[names(Amprion) == &quot;ï..Date&quot;] &lt;- &quot;Date&quot;
-names(TenneTTSO)[names(TenneTTSO) == &quot;ï..Date&quot;] &lt;- &quot;Date&quot;
-names(TransnetBW)[names(TransnetBW) == &quot;ï..Date&quot;] &lt;- &quot;Date&quot;
-
-#the date field loads into r as a character string, but I want it to be a Date class; here I convert the Date column into Date data type for all 4 data sets
-fifty_Hertz &lt;- fifty_Hertz %&gt;%
-  mutate(Date = as.Date(Date, &quot;%d/%m/%Y&quot;))
-Amprion &lt;- Amprion %&gt;%
-  mutate(Date = as.Date(Date, &quot;%d/%m/%Y&quot;))
-TenneTTSO &lt;- TenneTTSO %&gt;%
-  mutate(Date = as.Date(Date, &quot;%d/%m/%Y&quot;))
-TransnetBW &lt;- TransnetBW %&gt;%
-  mutate(Date = as.Date(Date, &quot;%d/%m/%Y&quot;))</code></pre>
-<p>The raw data provides an energy generation value for every 15 minute increment throughout each day; I want a total energy generation value for each full day, so I will sum these 96 values together to get a daily power generation value. Then, I will reduce each of my data sets down to the name and date columns only, and combine those 2 columns with my newly created daily sum column, to have a 3 column data frame that provides only the company name, the date, and the sum of power generation for that date. I will do this for all 4 companies.</p>
-<pre class="r"><code>a &lt;- fifty_Hertz %&gt;%
-  select(starts_with(&quot;X&quot;))
-fifty_hertz_daily_sum &lt;- mutate(a, daily_sum=rowSums(a)) %&gt;%
-  select(&quot;daily_sum&quot;)
-fifty_Hertz &lt;- select(fifty_Hertz, Company, Date)
-fifty_Hertz &lt;- cbind(fifty_Hertz, fifty_hertz_daily_sum)
-
-b &lt;- Amprion %&gt;%
-  select(starts_with(&quot;X&quot;))
-amprion_daily_sum &lt;- mutate(b, daily_sum=rowSums(b)) %&gt;%
-  select(&quot;daily_sum&quot;)
-Amprion &lt;- select(Amprion, Company, Date)
-Amprion &lt;- cbind(Amprion, amprion_daily_sum)
-
-c &lt;- TenneTTSO %&gt;%
-  select(starts_with(&quot;X&quot;))
-TenneTTSO_daily_sum &lt;- mutate(c, daily_sum=rowSums(c)) %&gt;%
-  select(&quot;daily_sum&quot;)
-TenneTTSO &lt;- select(TenneTTSO, Company, Date)
-TenneTTSO &lt;- cbind(TenneTTSO, TenneTTSO_daily_sum)
-
-d &lt;- TransnetBW %&gt;%
-  select(starts_with(&quot;X&quot;))
-TransnetBW_daily_sum &lt;- mutate(d, daily_sum=rowSums(d)) %&gt;%
-  select(&quot;daily_sum&quot;)
-TransnetBW &lt;- select(TransnetBW, Company, Date)
-TransnetBW &lt;- cbind(TransnetBW, TransnetBW_daily_sum)</code></pre>
-<p>Now that I have cleaned up and prepared all 4 datasets, it is time to combine them into one data frame that I will use to produce my visualization.</p>
+TransnetBW$Company &lt;- &quot;TransnetBW&quot;</code></pre>
+<p>Now I will combine the 4 data sets into one.</p>
 <pre class="r"><code>wind &lt;- rbind(fifty_Hertz, Amprion, TenneTTSO, TransnetBW)</code></pre>
-<p>And finally, I will create my data visualization, which will show the daily wind power generated for each of the 4 German energy companies over time.</p>
+<p>Next I will complete some simple data cleaning tasks.</p>
+<pre class="r"><code>#the date field loads into r with an additional symbol in the column name for the date parameter which will make code harder to read, so I will rename this column
+names(wind)[names(wind) == &quot;ï..Date&quot;] &lt;- &quot;Date&quot;
+
+#the date field loads into r as a character string, but I want it to be a Date class; here I convert the Date column into Date data type
+wind &lt;- wind %&gt;%
+  mutate(Date = as.Date(Date, &quot;%d/%m/%Y&quot;))</code></pre>
+<p>The raw data provides an energy generation value for every 15 minute increment throughout each day; I want a total energy generation value for each full day, so I will sum these 96 values together to get a daily power generation value. Then, I will reduce my wind data set down to the name and date columns only, and combine those 2 columns with my newly created daily sum column, to have a 3 column data frame that provides only the company name, the date, and the sum of power generation for that date.</p>
+<pre class="r"><code>a &lt;- wind %&gt;%
+  select(starts_with(&quot;X&quot;))
+wind_daily_sum &lt;- mutate(a, daily_sum=rowSums(a)) %&gt;%
+  select(&quot;daily_sum&quot;)
+wind &lt;- select(wind, Company, Date)
+wind &lt;- cbind(wind, wind_daily_sum)</code></pre>
+<p>Now that I have cleaned up and prepared my data, I will create my data visualization, which will show the daily wind power generated for each of the 4 German energy companies over time.</p>
 <pre class="r"><code>my_visualization &lt;- ggplot(wind, aes(Date, daily_sum, color=Company))+
   geom_point()+
   labs(x=&quot;Date&quot;, y=&quot;Total Wind Power Generated in THw&quot;)+
