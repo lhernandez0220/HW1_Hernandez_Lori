@@ -15,7 +15,7 @@ I am interested in hopefully one day working in the world of clean energy, possi
 
 First, I will install the packages I will need to use for this project.
 
-```{r setup, include=FALSE}
+```{r}
 knitr::opts_chunk$set(echo = TRUE)
 install.packages("ggplot2", repos="http://cran.us.r-project.org")
 install.packages("dplyr", repos="http://cran.us.r-project.org")
