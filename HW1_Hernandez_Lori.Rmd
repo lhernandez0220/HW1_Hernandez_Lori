@@ -21,7 +21,6 @@ install.packages("ggplot2", repos="http://cran.us.r-project.org")
 install.packages("dplyr", repos="http://cran.us.r-project.org")
 library(dplyr)
 library(ggplot2)
-
 ```
 
 Now I will load the 4 data sets I will use; there is a separate csv file for each of the 4 German energy companies.  I will also add the name of the company to each data set, so that when I combine them I still can separate the data out by company.
@@ -67,17 +66,22 @@ wind_daily_sum <- mutate(a, daily_sum=rowSums(a)) %>%
   select("daily_sum")
 wind <- select(wind, Company, Date)
 wind <- cbind(wind, wind_daily_sum)
-
 ```
 
 
 Now that I have cleaned up and prepared my data, I will create my data visualization, which will show the daily wind power generated for each of the 4 German energy companies over time.
 
 ```{r fig.height = 10, fig.width = 10}
-my_visualization <- ggplot(wind, aes(Date, daily_sum, color=Company))+
-  geom_point()+
-  labs(x="Date", y="Total Wind Power Generated in THw")+
-  ggtitle("Daily Wind Power Generation from Four German Energy Companies")
+my_visualization <- ggplot(wind, aes(Date, daily_sum, color=Company)) +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(~Company, nrow=4) +
+  labs(x=NULL, y="Total Wind Power Generated in THw") +
+  ggtitle("Daily Wind Power Generation from Four German Energy Companies")+
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5, size=20),
+        axis.title.y = element_text(size=14),
+        legend.position = "none")
 my_visualization
 ```
 
